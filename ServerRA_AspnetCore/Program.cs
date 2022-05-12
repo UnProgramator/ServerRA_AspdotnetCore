@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ServerRA_AspnetCore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Console.WriteLine(DateTime.Now);
 
 //admin@firebase.com   admin1
 
@@ -13,17 +16,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-                                                                                        {
-                                                                                            options.Authority = "https.https://securetoken.google.com/1:449726311356:web:6b06b1126f37de8975d9b9";
-                                                                                            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters {
-                                                                                                ValidateIssuer = true,
-                                                                                                ValidIssuer = "https.https://securetoken.google.com/1:449726311356:web:6b06b1126f37de8975d9b9",
-                                                                                                ValidateAudience = true,
-                                                                                                ValidAudience = "1:449726311356:web:6b06b1126f37de8975d9b9",
-                                                                                                ValidateLifetime = true
-                                                                                            };
-                                                                                        }
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+                        {
+                            options.Authority = "https://securetoken.google.com/computercompany-64270";
+                            options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                            {
+                                ValidateIssuer = true,
+                                ValidIssuer = "https://securetoken.google.com/computercompany-64270",
+                                ValidateAudience = true,
+                                ValidAudience = "computercompany-64270",
+                                ValidateLifetime = true
+                            };
+                        }
 );
 
 var app = builder.Build();
@@ -34,6 +39,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseHttpsRedirection();
 
