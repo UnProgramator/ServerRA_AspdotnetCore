@@ -83,7 +83,8 @@ namespace ServerRA_AspnetCore.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateInfo(UserInternalModel userData)
         {
-            var usrId = await usrSrv.getCrtUserID(this);
+            var writen = await usrSrv.UpdateClient(this, userData);
+
             return Ok();
         }
     }
