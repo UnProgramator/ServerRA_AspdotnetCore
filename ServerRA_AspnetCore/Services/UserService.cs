@@ -33,7 +33,9 @@ namespace ServerRA_AspnetCore.Services
 
             userData.Role = "User";
 
-            var response = await firebaseRef.SetAsync("userData/" + result.User.LocalId, userData);
+            //var response = await firebaseRef.SetAsync("userData/" + result.User.LocalId, userData);
+
+            var response = await FirebaseAccess.getFirestoreClient().Collection("userData").AddAsync(userData);
 
             return true;
         }
@@ -54,15 +56,31 @@ namespace ServerRA_AspnetCore.Services
             return response.ResultAs<UserInternalModel>();
         }
 
+        public async Task<string> getUserIDByToken(string token)
+        {
+            var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
+
+            return userData.LocalId;
+        }
+
         public async Task<string> getCrtUserID(ControllerBase context)
         {
             var token = context.Request.Headers[HeaderNames.Authorization][0];
 
             token = token.Substring(token.IndexOf(' ') + 1);
 
-            var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
+            return await getUserIDByToken(token);
+        }
 
-            return userData.LocalId;
+        public async Task<string> getUserRoleById(string id)
+        {
+            var data = await getUserData(id);
+            if (data == null)
+            {
+                throw new Exception("Database error: invalid logged user or corupted data");
+            }
+
+            return data.Role;
         }
 
         public async Task<string> getCrtUserRole(ControllerBase context)
@@ -73,13 +91,7 @@ namespace ServerRA_AspnetCore.Services
                 throw new Exception("No user loged in");
             }
 
-            var data = await getUserData(id);
-            if(data == null)
-            {
-                throw new Exception("Database error: invalid logged user or corupted data");
-            }
-
-            return data.Role;
+            return await getUserRoleById(id);
         }
 
         public bool CrtUserHasRole(ControllerBase context, string rol)
