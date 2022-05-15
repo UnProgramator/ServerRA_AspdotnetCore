@@ -26,7 +26,7 @@ namespace ServerRA_AspnetCore.Services
             firestoreRef = FirebaseAccess.getFirestoreClient();
         }
 
-        public async Task<bool> SignupUser(UserInternalModel userData, string password)
+        public async Task<bool> signupUser(UserInternalModel userData, string password)
         {
             var authPrv = FirebaseAccess.getFirebaseAuthProvider();
 
@@ -41,7 +41,7 @@ namespace ServerRA_AspnetCore.Services
             return true;
         }
 
-        public async Task<FirebaseAuthLink?> LoginUser(UserAuthenticationModel userData)
+        public async Task<FirebaseAuthLink?> signinUser(UserAuthenticationModel userData)
         {
             FirebaseAuthLink authLink = await FirebaseAccess.getFirebaseAuthProvider().SignInWithEmailAndPasswordAsync(userData.Email, userData.Password);
 

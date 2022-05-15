@@ -6,9 +6,6 @@ namespace ServerRA_AspnetCore.Model.User
     [FirestoreData]
     public class UserInternalModel
     {
-        [Required]
-        [FirestoreProperty]
-        public string? Email { get; set; }
 
         [Required]
         [FirestoreProperty]

@@ -23,10 +23,10 @@ namespace ServerRA_AspnetCore.Controllers
         public async Task<IActionResult> Register(UserSignupModel userData)
         {
             //create new user
-            await usrSrv.SignupUser(userData.getUserPublicInfo(), userData.Password);
+            await usrSrv.signupUser(userData.getUserPublicInfo(), userData.Password);
 
             //login the user
-            var authLink = await usrSrv.LoginUser(userData);
+            var authLink = await usrSrv.signinUser(userData);
 
             if (authLink != null)
             {
@@ -43,7 +43,7 @@ namespace ServerRA_AspnetCore.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login(UserAuthenticationModel userData)
         {
-            var authLink = await usrSrv.LoginUser(userData);
+            var authLink = await usrSrv.signinUser(userData);
 
             if (authLink != null)
             {

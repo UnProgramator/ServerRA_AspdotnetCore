@@ -22,7 +22,6 @@ namespace ServerRA_AspnetCore.Model.User
             {
                 Name = Name,
                 DefaultAddress = DefaultAddress,
-                Email = Email,
                 Role = "Email"
             };
         }
