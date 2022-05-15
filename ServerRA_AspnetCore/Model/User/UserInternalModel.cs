@@ -20,29 +20,18 @@ namespace ServerRA_AspnetCore.Model.User
         [FirestoreProperty]
         public string? Role { get; set; }
 
-        public void complete (UserInternalModel? other)
+        public Dictionary<string, object> getAsDict(bool ignoreNull = true)
         {
-            if (other == null) return;
+            Dictionary<string, object> retVal = new Dictionary<string, object>();
 
-            if (Email == null)
-            {
-                Email = other.Email;
-            }
+            if(!ignoreNull || Email != null) retVal.Add("Email", Email);
+            if(!ignoreNull || Name != null) retVal.Add("Name", Name);
+            if(!ignoreNull || DefaultAddress != null) retVal.Add("DefaultAddress", DefaultAddress);
+            if(!ignoreNull || Role != null) retVal.Add("Role", Role);
 
-            if (Name == null)
-            {
-                Name = other.Name;
-            }
-
-            if (DefaultAddress == null)
-            {
-                DefaultAddress = other.DefaultAddress;
-            }
-
-            if (Role == null)
-            {
-                Role = other.Role;
-            }
+            return retVal;
         }
+
+
     }
 }

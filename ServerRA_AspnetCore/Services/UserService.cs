@@ -112,10 +112,8 @@ namespace ServerRA_AspnetCore.Services
             string uid = await getCrtUserID(context);
 
             var oldData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
-            
-            newData.complete(oldData.ConvertTo<UserInternalModel>());
 
-            var response = await firestoreRef.Collection("userData").Document(uid).SetAsync(newData);
+            var response = await firestoreRef.Collection("userData").Document(uid).UpdateAsync(newData.getAsDict());
 
             return newData.Equals(response);
         }
