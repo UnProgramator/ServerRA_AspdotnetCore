@@ -4,6 +4,7 @@ using ServerRA_AspnetCore.Model.User;
 
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
+using Google.Cloud.Firestore;
 
 namespace ServerRA_AspnetCore.Services
 {
@@ -18,11 +19,11 @@ namespace ServerRA_AspnetCore.Services
             return _instance;
         }
 
-        private IFirebaseClient firebaseRef;
+        private FirestoreDb firestoreRef;
 
         private UserService()
         {
-            firebaseRef = FirebaseAccess.getFirebaseClient();
+            firestoreRef = FirebaseAccess.getFirestoreClient();
         }
 
         public async Task<bool> SignupUser(UserInternalModel userData, string password)
@@ -33,9 +34,9 @@ namespace ServerRA_AspnetCore.Services
 
             userData.Role = "User";
 
-            //var response = await firebaseRef.SetAsync("userData/" + result.User.LocalId, userData);
+            //var response = await firestoreRef.SetAsync("userData/" + result.User.LocalId, userData);
 
-            var response = await FirebaseAccess.getFirestoreClient().Collection("userData").AddAsync(userData);
+            var response = await firestoreRef.Collection("userData").Document(result.User.LocalId).CreateAsync(userData);
 
             return true;
         }
@@ -52,8 +53,8 @@ namespace ServerRA_AspnetCore.Services
 
         public async Task<UserInternalModel?> getUserData(string userId)
         {
-            var response = await firebaseRef.GetAsync("userData/" + userId);
-            return response.ResultAs<UserInternalModel>();
+            var response = await firestoreRef.Collection("userData").Document(userId).GetSnapshotAsync();
+            return response?.ConvertTo<UserInternalModel>();
         }
 
         public async Task<string> getUserIDByToken(string token)
@@ -61,6 +62,13 @@ namespace ServerRA_AspnetCore.Services
             var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
 
             return userData.LocalId;
+        }
+
+        public async Task<string> getUserMailByToken(string token)
+        {
+            var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
+
+            return userData.Email;
         }
 
         public async Task<string> getCrtUserID(ControllerBase context)
@@ -103,11 +111,11 @@ namespace ServerRA_AspnetCore.Services
         {
             string uid = await getCrtUserID(context);
 
-            var oldData = await firebaseRef.GetAsync("userData/" + uid);
+            var oldData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
             
-            newData.complete(oldData.ResultAs<UserInternalModel>());
+            newData.complete(oldData.ConvertTo<UserInternalModel>());
 
-            var response = await firebaseRef.UpdateAsync("userData/" + uid, newData);
+            var response = await firestoreRef.Collection("userData").Document(uid).SetAsync(newData);
 
             return newData.Equals(response);
         }

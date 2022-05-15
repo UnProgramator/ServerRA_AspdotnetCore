@@ -1,6 +1,9 @@
 ﻿using Firebase.Auth;
 using FireSharp;
 using FireSharp.Interfaces;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Firestore;
+using Google.Cloud.Firestore.V1;
 
 namespace ServerRA_AspnetCore.Services
 {
@@ -12,6 +15,7 @@ namespace ServerRA_AspnetCore.Services
 
         private static IFirebaseClient? _client = null;
         private static FirebaseAuthProvider? _authPrv = null;
+        private static FirestoreDb? _firestoreClient = null;
 
         public static IFirebaseClient getFirebaseClient()
         {
@@ -24,6 +28,16 @@ namespace ServerRA_AspnetCore.Services
                 _client = new FirebaseClient(config);
             }
             return _client;
+        }
+
+        public static FirestoreDb getFirestoreClient()
+        {
+            if (_firestoreClient == null)
+            {
+                var builder = new FirestoreClientBuilder { CredentialsPath = "Services/computercompany-64270-firebase-adminsdk-r2low-c750328577.json" };
+                _firestoreClient = FirestoreDb.Create("computercompany-64270", builder.Build());
+            }
+            return _firestoreClient;
         }
 
         public static FirebaseAuthProvider getFirebaseAuthProvider()

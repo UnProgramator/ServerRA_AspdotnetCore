@@ -1,16 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Google.Cloud.Firestore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServerRA_AspnetCore.Model.User
 {
+    [FirestoreData]
     public class UserInternalModel
     {
         [Required]
+        [FirestoreProperty]
         public string? Email { get; set; }
+
         [Required]
+        [FirestoreProperty]
         public string? Name { get; set; }
 
+        [FirestoreProperty]
         public string? DefaultAddress { get; set; }
 
+        [FirestoreProperty]
         public string? Role { get; set; }
 
         public void complete (UserInternalModel? other)
