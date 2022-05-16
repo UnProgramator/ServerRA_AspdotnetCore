@@ -26,17 +26,18 @@ namespace ServerRA_AspnetCore.Services
             firestoreRef = FirebaseAccess.getFirestoreClient();
         }
 
-        public async Task<bool> signupUser(UserInternalModel userData, string password)
+        public async Task<bool> signupUser(UserSignupModel userData, string role = "User")
         {
             var authPrv = FirebaseAccess.getFirebaseAuthProvider();
 
-            var result = await authPrv.CreateUserWithEmailAndPasswordAsync(userData.Email, password);
-
-            userData.Role = "User";
+            var result = await authPrv.CreateUserWithEmailAndPasswordAsync(userData.Email, userData.Password);
 
             //var response = await firestoreRef.SetAsync("userData/" + result.User.LocalId, userData);
 
-            var response = await firestoreRef.Collection("userData").Document(result.User.LocalId).CreateAsync(userData);
+            var publicData = userData.getUserPublicInfo();
+            publicData.Role = role;
+
+            var response = await firestoreRef.Collection("userData").Document(result.User.LocalId).CreateAsync(publicData);
 
             return true;
         }

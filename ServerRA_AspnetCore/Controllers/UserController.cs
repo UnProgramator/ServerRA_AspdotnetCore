@@ -23,7 +23,7 @@ namespace ServerRA_AspnetCore.Controllers
         public async Task<IActionResult> Register(UserSignupModel userData)
         {
             //create new user
-            await usrSrv.signupUser(userData.getUserPublicInfo(), userData.Password);
+            await usrSrv.signupUser(userData);
 
             //login the user
             var authLink = await usrSrv.signinUser(userData);

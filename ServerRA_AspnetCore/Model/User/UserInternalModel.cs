@@ -17,14 +17,13 @@ namespace ServerRA_AspnetCore.Model.User
         [FirestoreProperty]
         public string? Role { get; set; }
 
-        public Dictionary<string, object> getAsDict(bool ignoreNull = true)
+        public Dictionary<string, object> getAsDict(bool ignoreNull = true, bool returnRole = false)
         {
             Dictionary<string, object> retVal = new Dictionary<string, object>();
 
-            if(!ignoreNull || Email != null) retVal.Add("Email", Email);
             if(!ignoreNull || Name != null) retVal.Add("Name", Name);
             if(!ignoreNull || DefaultAddress != null) retVal.Add("DefaultAddress", DefaultAddress);
-            if(!ignoreNull || Role != null) retVal.Add("Role", Role);
+            if(returnRole && (!ignoreNull || Role != null)) retVal.Add("Role", Role);
 
             return retVal;
         }
