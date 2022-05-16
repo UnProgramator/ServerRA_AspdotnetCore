@@ -6,9 +6,9 @@ namespace ServerRA_AspnetCore.Model.Orders
     public class BasketExtendedEntryModel: BasketEntryModel
     {
         [FirestoreProperty]
-        string Name { get; set; }
+        string Name { get; set; } = "default";
 
         [FirestoreProperty]
-        string IsAvailable { get; set; }
+        string IsAvailable { get; set; } = "default";
     }
 }

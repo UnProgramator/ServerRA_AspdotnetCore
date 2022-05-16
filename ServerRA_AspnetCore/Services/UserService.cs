@@ -3,7 +3,7 @@
 using ServerRA_AspnetCore.Model.User;
 
 using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc; 
 using Google.Cloud.Firestore;
 
 namespace ServerRA_AspnetCore.Services
@@ -17,6 +17,13 @@ namespace ServerRA_AspnetCore.Services
             if (_instance == null)
                 _instance = new UserService();
             return _instance;
+        }
+
+        public static async Task<string> getUserIDByToken(string token)
+        {
+            var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
+
+            return userData.LocalId;
         }
 
         private FirestoreDb firestoreRef;
@@ -58,12 +65,7 @@ namespace ServerRA_AspnetCore.Services
             return response?.ConvertTo<UserInternalModel>();
         }
 
-        public async Task<string> getUserIDByToken(string token)
-        {
-            var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);
-
-            return userData.LocalId;
-        }
+        
 
         public async Task<string> getUserMailByToken(string token)
         {
@@ -72,46 +74,34 @@ namespace ServerRA_AspnetCore.Services
             return userData.Email;
         }
 
-        public async Task<string> getCrtUserID(ControllerBase context)
-        {
-            var token = context.Request.Headers[HeaderNames.Authorization][0];
-
-            token = token.Substring(token.IndexOf(' ') + 1);
-
-            return await getUserIDByToken(token);
-        }
-
         public async Task<string> getUserRoleById(string id)
         {
             var data = await getUserData(id);
-            if (data == null)
+            if (data != null)
             {
-                throw new Exception("Database error: invalid logged user or corupted data");
+                return data.Role;
             }
 
-            return data.Role;
+            throw new Exception("Database error: invalid logged user or corupted data");
         }
 
-        public async Task<string> getCrtUserRole(ControllerBase context)
+        public async Task<string> getCrtUserRole(string? uid)
         {
-            var id = await getCrtUserID(context);
-            if(id == null)
+            if(uid == null)
             {
                 throw new Exception("No user loged in");
             }
 
-            return await getUserRoleById(id);
+            return await getUserRoleById(uid);
         }
 
-        public bool CrtUserHasRole(ControllerBase context, string rol)
+        public bool CrtUserHasRole(string uid, string rol)
         {
-            return getCrtUserRole(context).Equals(rol);
+            return getCrtUserRole(uid).Equals(rol);
         }
 
-        public async Task<bool> UpdateClient(ControllerBase context, UserInternalModel newData) 
+        public async Task<bool> UpdateClient(string uid, UserInternalModel newData) 
         {
-            string uid = await getCrtUserID(context);
-
             var oldData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
 
             var response = await firestoreRef.Collection("userData").Document(uid).UpdateAsync(newData.getAsDict());

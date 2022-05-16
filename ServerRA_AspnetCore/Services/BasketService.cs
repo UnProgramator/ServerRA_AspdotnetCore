@@ -17,39 +17,43 @@ namespace ServerRA_AspnetCore.Services
             return _instance;
         }
 
-        private UserService usrSrv;
         private FirestoreDb firestoreRef;
 
         private BasketService()
         {
-            usrSrv = UserService.getInstance();
             firestoreRef = FirebaseAccess.getFirestoreClient();
         }
 
-        public async Task<int> getBasketCount(ControllerBase context)
+        //sems to be allright
+        public async Task<int> getBasketCount(string uid)
         {
-            string uid = await usrSrv.getCrtUserID(context);
-
             try
             {
                 var result = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
-                return result.GetValue<object[]>("Basket").Length;
+                var ar = result.GetValue<object[]>("Basket");
+                if (ar != null)
+                    return ar.Length;
+                else
+                    return 0; //if value is null or so, we get null pointer => 0 elements
             } 
             catch (InvalidOperationException)
             {
-                return 0;
+                return 0; //when field not declared we get this exception
             }
         }
 
-        public async Task<BasketEntryModel[]> getBasketForCurrentUser(ControllerBase context)
+        //sems to be allright
+        //bot yet fully implemented
+        public async Task<BasketEntryModel[]> getBasketForCurrentUser(string uid)
         {
-            string uid = await usrSrv.getCrtUserID(context);
-
             var usdData = firestoreRef.Collection("userData").Document(uid);
             try
             {
                 var snapshoot = await usdData.GetSnapshotAsync();
-                BasketEntryModel[] basket = snapshoot.GetValue<BasketExtendedEntryModel[]>("Basket");
+                BasketExtendedEntryModel[] basket = snapshoot.GetValue<BasketExtendedEntryModel[]>("Basket");
+
+                if(basket == null)
+                    return Array.Empty<BasketExtendedEntryModel>(); //for reasons where Basket would become null or whaterver
 
                 //complete the response with the name and availability
 
@@ -57,32 +61,71 @@ namespace ServerRA_AspnetCore.Services
             } 
             catch(InvalidOperationException)
             {
-                return Array.Empty<BasketEntryModel>();
+                return Array.Empty<BasketExtendedEntryModel>();
             }
         }
 
-        public async void addElementToBasket(ControllerBase context, BasketEntryModel Element)
+        //sems to be allright
+        public async Task<BasketEntryModel[]> addElementToBasket(string uid, BasketEntryModel Element)
         {
-            string uid = await usrSrv.getCrtUserID(context);
             var usdData = firestoreRef.Collection("userData").Document(uid);
 
             await usdData.UpdateAsync("Basket",FieldValue.ArrayUnion(Element));
+            return await getBasketForCurrentUser(uid);
         }
 
-        public async void changeElementCountToBasket(ControllerBase context, int position, int newCount)
-        {
-            string uid = await usrSrv.getCrtUserID(context);
-            var usdData = firestoreRef.Collection("userData").Document(uid);
+        //remove all elements
+        public async Task<BasketEntryModel[]> changeElementCountToBasket(string uid, int index, int newCount)
+        {            
+            var usdData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
 
-            await usdData.UpdateAsync("Basket." + position + ".Count", newCount);
+            var arr = usdData.GetValue<BasketEntryModel[]>("Basket");
+
+            arr[index].Count = newCount;
+
+            await firestoreRef.Collection("userData").Document(uid).UpdateAsync("Basket", arr);
+            return await getBasketForCurrentUser(uid);
         }
 
-        public async void removeElementFromBasket(ControllerBase context, BasketEntryModel Element)
+        //sems to work
+        public async Task<BasketEntryModel[]> removeElementFromBasket(string uid, BasketEntryModel Element)
         {
-            string uid = await usrSrv.getCrtUserID(context);
             var usdData = firestoreRef.Collection("userData").Document(uid);
 
             await usdData.UpdateAsync("Basket", FieldValue.ArrayRemove(Element));
+            return await getBasketForCurrentUser(uid);
+        }
+
+        //sems to work
+        public async Task<BasketEntryModel[]> removeElementFromBasket(string uid, int index)
+        {
+            var usdData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
+
+
+            var arr = usdData.GetValue<BasketEntryModel[]>("Basket");
+            if (index < 0 || index > arr.Length)
+                throw new Exception();
+
+            await removeElementFromBasket(uid, arr[index]);
+            return await getBasketForCurrentUser(uid);
+        }
+
+        public async Task<BasketEntryModel[]> emptyTheBasket(string uid)
+        {
+            var usdData = firestoreRef.Collection("userData").Document(uid);
+
+            await usdData.UpdateAsync("Basket", null);
+            return await getBasketForCurrentUser(uid);
+        }
+
+        public async Task<string?> ToOrder()
+        {
+            return null;
+        }
+
+        public async Task<string?> ToAssembly()
+        {
+            return null;
         }
     }
 }

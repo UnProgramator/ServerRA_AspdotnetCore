@@ -8,7 +8,7 @@ using ServerRA_AspnetCore.Services;
 namespace ServerRA_AspnetCore.Controllers
 {
     [Authorize]
-    public class UserController : ControllerBase
+    public class UserController : BaseControllerWithFunctionality
     {
         private UserService usrSrv;
 
@@ -67,7 +67,7 @@ namespace ServerRA_AspnetCore.Controllers
         [HttpGet]
         public async Task<IActionResult> GenInfo()
         {
-            var uid = await usrSrv.getCrtUserID(this);
+            var uid = await UserService.getUserIDByToken(getAuthToken());
             var requestedUserData = await usrSrv.getUserData(uid);
             if(requestedUserData != null)
             {
@@ -83,7 +83,8 @@ namespace ServerRA_AspnetCore.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateInfo(UserInternalModel userData)
         {
-            var writen = await usrSrv.UpdateClient(this, userData);
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            var writen = await usrSrv.UpdateClient(uid, userData);
 
             return Ok();
         }

@@ -14,21 +14,21 @@ namespace ServerRA_AspnetCore.XMLRPC.External
 
         string IUserDataRpcService.GetUserPrivileges(string token)
         {
-            string id = usrSrv.getUserIDByToken(token).Result;
+            string id = UserService.getUserIDByToken(token).Result;
             return usrSrv.getUserRoleById(id).Result;
         }
 
-        string IUserDataRpcService.GetUserID(string token) => usrSrv.getUserIDByToken(token).Result;
+        string IUserDataRpcService.GetUserID(string token) => UserService.getUserIDByToken(token).Result;
 
         bool IUserDataRpcService.IsUserAdmin(string token)
         {
-            string id = usrSrv.getUserIDByToken(token).Result;
+            string id = UserService.getUserIDByToken(token).Result;
             return usrSrv.getUserRoleById(id).Result.Equals("Admin");
         }
 
         bool IUserDataRpcService.IsUserManager(string token)
         {
-            string id = usrSrv.getUserIDByToken(token).Result;
+            string id = UserService.getUserIDByToken(token).Result;
             return usrSrv.getUserRoleById(id).Result.Equals("Manager");
         }
     }

@@ -7,7 +7,7 @@ namespace ServerRA_AspnetCore.Model
         [Required]
         DateTime date { get; set; }
         [Required]
-        string state { get; set; }
+        string state { get; set; } = "";
 
         float? price { get; set; }
 

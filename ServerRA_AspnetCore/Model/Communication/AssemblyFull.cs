@@ -14,6 +14,6 @@ namespace ServerRA_AspnetCore.Model
 
         Dictionary<string, int> components { get; set; }
 
-        DetailModel[] details;
+        //DetailModel[] details;
     }
 }
