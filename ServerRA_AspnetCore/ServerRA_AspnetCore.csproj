@@ -11,18 +11,18 @@
   <ItemGroup>
     <PackageReference Include="Firebase.Auth" Version="1.0.0" />
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
-    <PackageReference Include="FireSharp" Version="2.0.4" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.5.0" />
     <PackageReference Include="Horizon.XmlRpc.AspNetCore" Version="2.5.0" />
     <PackageReference Include="Horizon.XmlRpc.Client" Version="2.5.0" />
     <PackageReference Include="Horizon.XmlRpc.Core" Version="2.5.0" />
     <PackageReference Include="Horizon.XmlRpc.Server" Version="2.5.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.Owin" Version="2.2.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
-    <PackageReference Include="Microsoft.Owin" Version="4.2.1" />
-    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.1" />
-    <PackageReference Include="Microsoft.Owin.Security" Version="4.2.1" />
-    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Host.SystemWeb" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security" Version="4.2.2" />
+    <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.2.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
   </ItemGroup>
