@@ -24,7 +24,6 @@ namespace ServerRA_AspnetCore.Controllers
             return Ok(result);
         }
 
-        //when empty status 204 No content
         [Route("[controller]/get")]
         [HttpGet]
         public async Task<IActionResult> GetBasket()

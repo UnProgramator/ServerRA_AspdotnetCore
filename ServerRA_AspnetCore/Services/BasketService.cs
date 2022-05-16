@@ -44,7 +44,7 @@ namespace ServerRA_AspnetCore.Services
 
         //sems to be allright
         //bot yet fully implemented
-        public async Task<BasketEntryModel[]> getBasketForCurrentUser(string uid)
+        public async Task<BasketExtendedEntryModel[]> getBasketForCurrentUser(string uid)
         {
             var usdData = firestoreRef.Collection("userData").Document(uid);
             try

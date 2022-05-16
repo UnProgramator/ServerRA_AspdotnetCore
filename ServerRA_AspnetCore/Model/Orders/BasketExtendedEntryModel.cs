@@ -1,4 +1,5 @@
 ﻿using Google.Cloud.Firestore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServerRA_AspnetCore.Model.Orders
 {
@@ -6,9 +7,17 @@ namespace ServerRA_AspnetCore.Model.Orders
     public class BasketExtendedEntryModel: BasketEntryModel
     {
         [FirestoreProperty]
-        string Name { get; set; } = "default";
+        [Required]
+        public string Name { get; set; }
 
         [FirestoreProperty]
-        string IsAvailable { get; set; } = "default";
+        [Required]
+        public string IsAvailable { get; set; }
+
+        public BasketExtendedEntryModel()
+        {
+            Name = "default";
+            IsAvailable = "No";
+        }
     }
 }
