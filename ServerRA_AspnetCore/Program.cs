@@ -44,7 +44,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseXmlRpc(config => config.MapService<UserDataRpcServiceImp>("xml-rpc"));
+
 
 app.UseHttpsRedirection();
 
@@ -53,5 +53,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseXmlRpc(config => config.MapService<UserDataRpcServiceImp>("xml-rpc"));
 
 app.Run();
