@@ -6,9 +6,9 @@ namespace ServerRA_AspnetCore.Model.User
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string email { get; set; }
 
         [Required]
-        public string Password { get; set; }
+        public string password { get; set; }
     }
 }
