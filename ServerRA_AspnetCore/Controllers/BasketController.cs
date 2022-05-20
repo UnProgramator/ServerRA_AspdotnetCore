@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ServerRA_AspnetCore.Model.Orders;
-using ServerRA_AspnetCore.Services;
+using ServerRA_AspnetCore.Model.Basket;
+using ServerRA_AspnetCore.Services.Client;
 
 namespace ServerRA_AspnetCore.Controllers
 {
@@ -84,7 +84,7 @@ namespace ServerRA_AspnetCore.Controllers
         //ok
         [Route("[controller]/remove")]
         [HttpPost]
-        public async Task<IActionResult> RemoveItemFromBakset(BasketEntryModel item)
+        public async Task<IActionResult> RemoveItemFromBakset(BasketExtendedEntryModel item)
         {
             var uid = await UserService.getUserIDByToken(getAuthToken());
             return Ok(await bskSrv.removeElementFromBasket(uid, item));
@@ -101,14 +101,16 @@ namespace ServerRA_AspnetCore.Controllers
         [Route("[controller]/order")]
         public async Task<IActionResult> BasketToOrderAsync()
         {
-            var result = await bskSrv.ToOrder();
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            var result = await bskSrv.ToOrder(uid);
             return Ok(result);
         }
 
         [Route("[controller]/assemble")]
         public async Task<IActionResult> BasketToAssembleAsync()
         {
-            var result = await bskSrv.ToOrder();
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            var result = await bskSrv.ToAssembly(uid);
             return Ok(result);
         }
     }

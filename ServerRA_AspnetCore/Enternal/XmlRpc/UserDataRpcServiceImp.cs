@@ -1,7 +1,7 @@
 ﻿using Horizon.XmlRpc.AspNetCore;
-using ServerRA_AspnetCore.Services;
+using ServerRA_AspnetCore.Services.Client;
 
-namespace ServerRA_AspnetCore.XMLRPC.External
+namespace ServerRA_AspnetCore.External.XMLRPC
 {
     public class UserDataRpcServiceImp: XmlRpcService, IUserDataRpcService
     {

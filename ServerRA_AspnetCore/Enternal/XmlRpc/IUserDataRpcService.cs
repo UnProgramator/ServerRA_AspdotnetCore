@@ -1,6 +1,6 @@
 ﻿using Horizon.XmlRpc.Core;
 
-namespace ServerRA_AspnetCore.XMLRPC.External
+namespace ServerRA_AspnetCore.External.XMLRPC
 {
     public interface IUserDataRpcService
     {

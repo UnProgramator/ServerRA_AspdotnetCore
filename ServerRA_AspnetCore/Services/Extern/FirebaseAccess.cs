@@ -5,7 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Google.Cloud.Firestore.V1;
 
-namespace ServerRA_AspnetCore.Services
+namespace ServerRA_AspnetCore.Services.Extern
 {
     public class FirebaseAccess
     {
@@ -34,7 +34,7 @@ namespace ServerRA_AspnetCore.Services
         {
             if (_firestoreClient == null)
             {
-                var builder = new FirestoreClientBuilder { CredentialsPath = "Services/computercompany-64270-firebase-adminsdk-r2low-c750328577.json" };
+                var builder = new FirestoreClientBuilder { CredentialsPath = "Services/Extern/computercompany-64270-firebase-adminsdk-r2low-c750328577.json" };
                 _firestoreClient = FirestoreDb.Create("computercompany-64270", builder.Build());
             }
             return _firestoreClient;
@@ -44,10 +44,10 @@ namespace ServerRA_AspnetCore.Services
         {
             if (_authPrv == null)
             {
-                _authPrv = new FirebaseAuthProvider(new Firebase.Auth.FirebaseConfig(web_api_key));
+                _authPrv = new FirebaseAuthProvider(new FirebaseConfig(web_api_key));
             }
             return _authPrv;
         }
-        
+
     }
 }

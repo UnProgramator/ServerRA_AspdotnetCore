@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServerRA_AspnetCore.XMLRPC.External;
+using ServerRA_AspnetCore.External.XMLRPC;
 
 namespace ServerRA_AspnetCore.Controllers
 {

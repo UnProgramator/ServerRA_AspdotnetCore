@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using ServerRA_AspnetCore.Exceptions;
 using ServerRA_AspnetCore.Model.User;
-using ServerRA_AspnetCore.Services;
+using ServerRA_AspnetCore.Services.Client;
 
 namespace ServerRA_AspnetCore.Controllers
 {

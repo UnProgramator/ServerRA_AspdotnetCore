@@ -1,7 +1,7 @@
 using Horizon.XmlRpc.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ServerRA_AspnetCore.Services;
-using ServerRA_AspnetCore.XMLRPC.External;
+using ServerRA_AspnetCore.External.XMLRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 
