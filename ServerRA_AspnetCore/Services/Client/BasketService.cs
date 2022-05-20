@@ -61,7 +61,10 @@ namespace ServerRA_AspnetCore.Services.Client
 
                 var response = ServerCommunication.getInstance().getAvailability(basket);
 
-                return response;
+                if (response != null)
+                    return response;
+                else
+                    return Array.Empty<BasketExtendedEntryModel>();
             }
             catch (InvalidOperationException)
             {
@@ -101,7 +104,7 @@ namespace ServerRA_AspnetCore.Services.Client
         }
 
         //sems to work
-        public async Task<BasketEntryModel[]> removeElementFromBasket(string uid, int index)
+        public async Task<BasketExtendedEntryModel[]> removeElementFromBasket(string uid, int index)
         {
             var usdData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
 
@@ -114,7 +117,7 @@ namespace ServerRA_AspnetCore.Services.Client
             return await getBasketForCurrentUser(uid);
         }
 
-        public async Task<BasketEntryModel[]> emptyTheBasket(string uid)
+        public async Task<BasketExtendedEntryModel[]> emptyTheBasket(string uid)
         {
             var usdData = firestoreRef.Collection("userData").Document(uid);
 

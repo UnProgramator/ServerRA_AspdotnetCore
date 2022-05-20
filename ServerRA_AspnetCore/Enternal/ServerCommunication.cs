@@ -15,7 +15,7 @@ namespace ServerRA_AspnetCore.Enternal
             return _instance;
         }
 
-        BasketExtendedEntryModel[] getAvailability(BasketEntryModel[] items);
+        BasketExtendedEntryModel[]? getAvailability(BasketEntryModel[] items);
         bool areAllAvailable(BasketEntryModel[] items);
     }
 }
