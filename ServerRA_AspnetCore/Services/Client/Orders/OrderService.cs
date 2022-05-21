@@ -39,9 +39,18 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             BasketExtendedEntryModel[] componentsExt = ServerCommunication.getInstance().getAvailability(componenets);
 
+            if (componentsExt == null)
+                return null;
+            if (componentsExt.Length == 0)
+            {
+                throw new BadHttpRequestException("Basket is empty");
+            }
+
             var components = new OrderComponentModel[componentsExt.Length];
             foreach (var entry in componentsExt)
             {
+                components[i] = new OrderComponentModel();
+
                 components[i].componentId = entry.productId;
                 components[i].componentName = entry.name;
                 components[i].quantity = entry.count;
@@ -53,11 +62,12 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             OrderInternalModel om = new OrderInternalModel(uid);
 
-            om.orderDate = DateTime.Now;
+            om.orderDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
             om.details = new OrderDetailsModel();
             om.content = components;
             om.state = "Processing";
             om.value = value;
+            om.hystory = Array.Empty<HistoryModel>();
 
             var response = await fdb.Collection(collectionName).AddAsync(om);
 
@@ -69,7 +79,8 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             hst.message = "Command with number " + docId + " created";
             hst.state = "Created";
 
-            var response2 = await fdb.Collection(collectionName).Document(docId + ".hystory").SetAsync(new HistoryModel[] { hst });
+            var response2 = await fdb.Collection(collectionName).Document(docId).
+                UpdateAsync("hystory", FieldValue.ArrayUnion(new HistoryModel[] { hst }));
 
             return docId;
         }

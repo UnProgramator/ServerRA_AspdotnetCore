@@ -1,5 +1,4 @@
 ﻿using Google.Cloud.Firestore;
-using Microsoft.AspNetCore.Mvc;
 using ServerRA_AspnetCore.Enternal;
 using ServerRA_AspnetCore.Model.Basket;
 using ServerRA_AspnetCore.Services.Client.Orders;
@@ -109,7 +108,7 @@ namespace ServerRA_AspnetCore.Services.Client
             var usdData = await firestoreRef.Collection("userData").Document(uid).GetSnapshotAsync();
 
 
-            var arr = usdData.GetValue<BasketExtendedEntryModel[]>(_basketField);
+            var arr = usdData.GetValue<BasketEntryModel[]>(_basketField);
             if (index < 0 || index > arr.Length)
                 throw new Exception();
 

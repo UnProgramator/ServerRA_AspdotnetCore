@@ -84,7 +84,7 @@ namespace ServerRA_AspnetCore.Controllers
         //ok
         [Route("[controller]/remove")]
         [HttpPost]
-        public async Task<IActionResult> RemoveItemFromBakset(BasketExtendedEntryModel item)
+        public async Task<IActionResult> RemoveItemFromBakset(BasketEntryModel item)
         {
             var uid = await UserService.getUserIDByToken(getAuthToken());
             return Ok(await bskSrv.removeElementFromBasket(uid, item));
@@ -101,9 +101,19 @@ namespace ServerRA_AspnetCore.Controllers
         [Route("[controller]/order")]
         public async Task<IActionResult> BasketToOrderAsync()
         {
-            var uid = await UserService.getUserIDByToken(getAuthToken());
-            var result = await bskSrv.ToOrder(uid);
-            return Ok(result);
+            try
+            {
+                var uid = await UserService.getUserIDByToken(getAuthToken());
+                var result = await bskSrv.ToOrder(uid);
+                if (result != null)
+                    return Ok("The order was succesfully added wiht the id \"" + result + "\"");
+                else
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [Route("[controller]/assemble")]

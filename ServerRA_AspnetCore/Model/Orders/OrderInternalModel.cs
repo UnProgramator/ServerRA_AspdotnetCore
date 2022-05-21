@@ -12,5 +12,10 @@ namespace ServerRA_AspnetCore.Model.Orders
         {
             this.userId = userId;
         }
+
+        public OrderInternalModel()
+        {
+            this.userId = "not set";
+        }
     }
 }
