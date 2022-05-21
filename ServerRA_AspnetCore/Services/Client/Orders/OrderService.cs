@@ -19,7 +19,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return _instance;
         }
 
-        public const string collectionName = "Orders";
+        public const string collectionName = "orders";
 
         private FirestoreDb fdb;
         private UserService usrSrv;
@@ -63,11 +63,16 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             OrderInternalModel om = new OrderInternalModel(uid);
 
             om.orderDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
-            om.details = new OrderDetailsModel();
             om.content = components;
             om.state = "Processing";
             om.value = value;
             om.hystory = Array.Empty<HistoryModel>();
+
+            var data = await usrSrv.getUserData(uid);
+
+            om.details = new OrderDetailsModel();
+            om.details.clinetName = data?.name;
+            om.details.address = data?.defaultAddress;
 
             var response = await fdb.Collection(collectionName).AddAsync(om);
 

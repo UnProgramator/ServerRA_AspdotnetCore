@@ -24,7 +24,7 @@ namespace ServerRA_AspnetCore.Controllers
             var uid = await UserService.getUserIDByToken(getAuthToken());
             try
             {
-                var result = orsrv.getOrderDetails(orderid, uid);
+                var result = await orsrv.getOrderDetails(orderid, uid);
                 if (result == null)
                     return BadRequest(result);
                 else
@@ -45,7 +45,7 @@ namespace ServerRA_AspnetCore.Controllers
         public async Task<IActionResult> GetOrder()
         {
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            var result = orsrv.getOrdersForUser(uid);
+            var result = await orsrv.getOrdersForUser(uid);
             if (result == null)
                 return Ok("[]");
             else
@@ -62,7 +62,7 @@ namespace ServerRA_AspnetCore.Controllers
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
-            var result = orsrv.getUnfinishedOrders();
+            var result = await orsrv.getUnfinishedOrders();
             if (result == null)
                 return Ok("[]");
             else
@@ -81,7 +81,7 @@ namespace ServerRA_AspnetCore.Controllers
             }
             if (state == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "state field cannot be empty");
-            var result = orsrv.changeState(orderid, state);
+            var result = await orsrv.changeState(orderid, state);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
@@ -100,7 +100,7 @@ namespace ServerRA_AspnetCore.Controllers
             }
             if (newMessage == null || newMessage.message == null || newMessage.message.Equals(""))
                 return StatusCode(StatusCodes.Status400BadRequest, "Message field cannot be empty");
-            var result = orsrv.addMessageToHistory(orderid, uid, newMessage);
+            var result = await orsrv.addMessageToHistory(orderid, uid, newMessage);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
@@ -117,7 +117,7 @@ namespace ServerRA_AspnetCore.Controllers
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
-            var result = orsrv.removeProduct(orderid, uid, product);
+            var result = await orsrv.removeProduct(orderid, uid, product);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else

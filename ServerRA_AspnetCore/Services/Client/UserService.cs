@@ -34,7 +34,7 @@ namespace ServerRA_AspnetCore.Services.Client
             firestoreRef = FirebaseAccess.getFirestoreClient();
         }
 
-        public async Task<bool> signupUser(UserSignupModel userData, string role = "User")
+        public async Task<bool> signupUser(UserSignupModel userData, string role = "Client")
         {
             var authPrv = FirebaseAccess.getFirebaseAuthProvider();
 
