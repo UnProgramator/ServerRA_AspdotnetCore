@@ -14,6 +14,6 @@ namespace ServerRA_AspnetCore.Model.Orders
         public OrderDetailsModel? details { get; set; }
 
         [FirestoreProperty]
-        public HistoryModel[]? hystory { get; set; }
+        public HistoryModel[]? history { get; set; }
     }
 }

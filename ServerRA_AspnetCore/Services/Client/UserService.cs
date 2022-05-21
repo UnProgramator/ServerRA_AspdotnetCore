@@ -75,7 +75,7 @@ namespace ServerRA_AspnetCore.Services.Client
             return userData.Email;
         }
 
-        public async Task<string> getUserRoleById(string id)
+        public async Task<string?> getUserRoleById(string id)
         {
             var data = await getUserData(id);
             if (data != null)

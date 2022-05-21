@@ -19,6 +19,13 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return _instance;
         }
 
+        public const string state_process = "Processing";
+        public const string state_dispaced = "Dispaced";
+        public const string state_delivered = "Delivered";
+
+
+        private static DateTime getCrtTime() => DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+
         public const string collectionName = "orders";
 
         private FirestoreDb fdb;
@@ -62,11 +69,11 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             OrderInternalModel om = new OrderInternalModel(uid);
 
-            om.orderDate = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+            om.orderDate = getCrtTime();
             om.content = components;
-            om.state = "Processing";
+            om.state = state_process;
             om.value = value;
-            om.hystory = Array.Empty<HistoryModel>();
+            om.history = Array.Empty<HistoryModel>();
 
             var data = await usrSrv.getUserData(uid);
 
@@ -84,8 +91,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             hst.message = "Command with number " + docId + " created";
             hst.state = "Created";
 
-            var response2 = await fdb.Collection(collectionName).Document(docId).
-                UpdateAsync("hystory", FieldValue.ArrayUnion(new HistoryModel[] { hst }));
+            var response2 = await insertMessageToHystory(docId, hst);
 
             return docId;
         }
@@ -143,7 +149,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
         {
             OrderResumeModel[]? result = null;
 
-            var response = fdb.Collection(collectionName).WhereEqualTo("state", "Processing").OrderBy("orderDate");
+            var response = fdb.Collection(collectionName).WhereEqualTo("state", state_process).OrderBy("orderDate");
 
             var snap = await response.GetSnapshotAsync();
 
@@ -167,6 +173,18 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return result;
         }
 
+        public async Task<OrderModel?> changeStateWithPrecondition(string oid, string newState, string requiredState)
+        {
+            var snap = await fdb.Collection(collectionName).Document(oid).GetSnapshotAsync();
+
+            var oldState = snap.GetValue<string>("state");
+
+            if (oldState.Equals(requiredState))
+                return await changeState(oid, newState);
+            else
+                throw new Exception("Requested chnage is invalid, cannot change state from " + oldState + " to " + newState);
+        }
+
         public async Task<OrderModel?> changeState(string oid, string newState)
         {
             var response = await fdb.Collection(collectionName).Document(oid).UpdateAsync("state", newState);
@@ -179,14 +197,18 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
         public async Task<OrderModel?> addMessageToHistory(string oid, string uid, HistoryModel message)
         {
-            message.date = DateTime.Now;
+            message.date = getCrtTime();
             message.sourceName = (await usrSrv.getUserData(uid))?.name;
             if (message.sourceName == null)
                 return null;
-
-            var response2 = await fdb.Collection(collectionName).Document(oid).UpdateAsync("history", FieldValue.ArrayUnion(message));
+            await insertMessageToHystory(oid, message);
 
             return await getOrderDetails(oid, null);
+        }
+
+        private async Task<object> insertMessageToHystory(string oid, HistoryModel message)
+        {
+            return await fdb.Collection(collectionName).Document(oid).UpdateAsync("history", FieldValue.ArrayUnion(message));
         }
 
         public async Task<bool> verifyItem(string oid, OrderComponentModel comp)

@@ -11,10 +11,17 @@ namespace ServerRA_AspnetCore.Controllers
     public class OrderController : BaseControllerWithFunctionality
     {
         private readonly OrderService orsrv;
+        private readonly UserService usrSrv;
 
         public OrderController()
         {
             orsrv = OrderService.getInstace();
+            usrSrv = UserService.getInstance();
+        }
+
+        protected async Task<bool> isNotAutorized(string uid)
+        {
+            return !await usrSrv.IsUserStaff(uid) && !await usrSrv.IsUserManager(uid);
         }
 
         [Route("[controller]/get/{orderid}")]
@@ -56,9 +63,8 @@ namespace ServerRA_AspnetCore.Controllers
         [HttpGet]
         public async Task<IActionResult> GetInProcessOrder()
         {
-            var usrSrv = UserService.getInstance();
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            if(await usrSrv.IsUserStaff(uid) || await usrSrv.IsUserManager(uid))
+            if(await isNotAutorized(uid))
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
@@ -73,9 +79,8 @@ namespace ServerRA_AspnetCore.Controllers
         [HttpPost("{orderid}")]
         public async Task<IActionResult> ChangeState(string orderid, string? state)
         {
-            var usrSrv = UserService.getInstance();
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            if (await usrSrv.IsUserStaff(uid) || await usrSrv.IsUserManager(uid))
+            if (await isNotAutorized(uid))
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
@@ -88,13 +93,69 @@ namespace ServerRA_AspnetCore.Controllers
                 return Ok(result);
         }
 
+        [Route("staff/[controller]/{orderid}/dispace")]
+        [HttpPost]
+        public async Task<IActionResult> Dispace(string orderid)
+        {
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            if (await isNotAutorized(uid))
+            {
+                return Unauthorized("Need staff priviledges or higher to access this functionality");
+            }
+            try { 
+                var result = await orsrv.changeStateWithPrecondition(orderid, OrderService.state_dispaced, OrderService.state_process);
+                if (result == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                else
+                {
+                    HistoryModel message = new HistoryModel();
+                    message.message = "Order with id " + orderid + " is not in process to be delivered";
+                    message.state = OrderService.state_dispaced;
+                    await orsrv.addMessageToHistory(orderid, uid, message);
+                    return Ok(result);
+                }
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [Route("staff/[controller]/{orderid}/deliver")]
+        [HttpPost]
+        public async Task<IActionResult> Deliver(string orderid)
+        {
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            if (await isNotAutorized(uid))
+            {
+                return Unauthorized("Need staff priviledges or higher to access this functionality");
+            }
+            try
+            {
+                var result = await orsrv.changeStateWithPrecondition(orderid, OrderService.state_delivered, OrderService.state_dispaced);
+                if (result == null)
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+                else
+                {
+                    HistoryModel message = new HistoryModel();
+                    message.message = "Order with id " + orderid + " has been delivered";
+                    message.state = OrderService.state_delivered;
+                    await orsrv.addMessageToHistory(orderid, uid, message);
+                    return Ok(result);
+                }
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [Route("staff/[controller]/message/{orderid}")]
-        [HttpPost("{orderid}")]
+        [HttpPost]
         public async Task<IActionResult> AddMessage(string orderid, HistoryModel? newMessage)
         {
-            var usrSrv = UserService.getInstance();
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            if (await usrSrv.IsUserStaff(uid) || await usrSrv.IsUserManager(uid))
+            if (await isNotAutorized(uid))
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
@@ -109,15 +170,14 @@ namespace ServerRA_AspnetCore.Controllers
 
         [Route("staff/[controller]/remove/{orderid}")]
         [HttpPost("{orderid}")]
-        public async Task<IActionResult> AddMessage(string orderid, OrderComponentModel[] product)
+        public async Task<IActionResult> RemoveItems(string orderid, [FromBody] OrderComponentModel[] products)
         {
-            var usrSrv = UserService.getInstance();
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            if (await usrSrv.IsUserStaff(uid) || await usrSrv.IsUserManager(uid))
+            if (await isNotAutorized(uid))
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
-            var result = await orsrv.removeProduct(orderid, uid, product);
+            var result = await orsrv.removeProduct(orderid, uid, products);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else

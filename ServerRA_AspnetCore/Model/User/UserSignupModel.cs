@@ -12,7 +12,7 @@ namespace ServerRA_AspnetCore.Model.User
         //public string password { get; set; } //inherit from auth
 
         [Required]
-        public string Name { get; set; }
+        public string name { get; set; }
 
         public string defaultAddress { get; set; }
 
@@ -20,7 +20,7 @@ namespace ServerRA_AspnetCore.Model.User
         {
             return new UserInternalModel
             {
-                name = Name,
+                name = name,
                 defaultAddress = defaultAddress,
                 role = "Email"
             };
