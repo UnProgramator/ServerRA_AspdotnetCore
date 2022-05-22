@@ -127,7 +127,7 @@ namespace ServerRA_AspnetCore.Services.Client
         public async Task<string?> ToOrder(string uid)
         {
             var orderComponents = await this.getBasketForCurrentUser(uid);
-            var passed = await OrderService.getInstace().addNewOrder(uid, orderComponents);
+            var passed = await OrderService.getInstance().addNewOrder(uid, orderComponents);
 
             if(passed != null)
             {
@@ -140,7 +140,7 @@ namespace ServerRA_AspnetCore.Services.Client
         public async Task<string?> ToAssembly(string uid)
         {
             var orderComponents = await this.getBasketForCurrentUser(uid);
-            string? passed = null; // await OrderService.getInstace().addNewOrder(uid, orderComponents);
+            string? passed = await AssemblyService.getInstance().addNewOrder(uid, orderComponents); // await OrderService.getInstance().addNewOrder(uid, orderComponents);
 
             if (passed != null)
             {

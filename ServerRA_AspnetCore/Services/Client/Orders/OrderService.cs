@@ -12,7 +12,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
     {
         private static OrderService? _instance;
 
-        public static OrderService getInstace()
+        public static OrderService getInstance()
         {
             if(_instance == null)
                 _instance = new OrderService("orders");
@@ -23,13 +23,15 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
         public const string state_dispaced = "Dispaced";
         public const string state_delivered = "Delivered";
 
+        protected virtual string getOrderStartingState() => state_process;
+
 
         protected static DateTime getCrtTime() => DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
 
         protected string collectionName;
 
-        private FirestoreDb fdb;
-        private UserService usrSrv;
+        protected FirestoreDb fdb;
+        protected UserService usrSrv;
 
         protected OrderService(string CollectionName) {
             fdb = FirebaseAccess.getFirestoreClient();
@@ -72,7 +74,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             om.orderDate = getCrtTime();
             om.content = components;
-            om.state = state_process;
+            om.state = getOrderStartingState();
             om.value = value;
             om.history = Array.Empty<HistoryModel>();
 
@@ -220,59 +222,59 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return fdb.Collection(collectionName).Document(oid).UpdateAsync("history", FieldValue.ArrayUnion(message)).Result;
         }
 
-        protected async Task<bool> verifyItem(string oid, OrderComponentModel comp)
+        protected async Task<double> verifyItem(string oid, OrderComponentModel[] components, HistoryModel removeMsg)
         {
+            double sum = 0;
+
             var result = await fdb.Collection(collectionName).Document(oid).GetSnapshotAsync();
 
             var vec = result.GetValue<OrderComponentModel[]>("content");
 
-            if(vec == null)
-                return false;
+            if (vec == null)
+                throw new Exception("InternalServerError");
 
-            foreach(var item in vec)
-            {
-                if (item == null) continue;
-                if (item.componentId.Equals(comp.componentId) && item.quantity.Equals(comp.quantity) && item.componentName.Equals(comp.componentName))
+            foreach (var comp in components)
+                foreach(var item in vec)
                 {
-                    if (item.totalPrice.Equals(comp.totalPrice))
+                    if (item == null) continue;
+                    if (item.componentId.Equals(comp.componentId) && item.quantity.Equals(comp.quantity) && item.componentName.Equals(comp.componentName))
                     {
-                        return true;
-                    }
-                    else
-                    {
-                        throw new Exception("Price do not corespond to stored price. Fraud allert");
-                        //if price is higer, it induce the idea that the customer hoped "to trick"
-                        //and get a bigger refund then the actual money he paid for components 
+                        if (item.totalPrice.Equals(comp.totalPrice))
+                        {
+                            removeMsg.message += "Removed item " + item.componentName + ", code " + item.componentId + " from order.\n";
+                            sum += comp.totalPrice;
+                            break;
+                        }
+                        else
+                        {
+                            throw new InvalidDataException("Price do not corespond to stored price. Fraud allert");
+                            //if price is higer, it induce the idea that the customer hoped "to trick"
+                            //and get a bigger refund then the actual money he paid for components 
+                        }
                     }
                 }
-            }
 
-            return false;
+            return sum;
         }
 
-        public virtual async Task<OrderModel?> removeProduct(string oid, string uid, OrderComponentModel[] product)
+        public virtual async Task<bool> removeProduct(string oid, string uid, OrderComponentModel[] product, bool returnToBasket)
         {
             //verify price and update for every item
-            foreach(var item in product)
-                if(!await verifyItem(oid, item))
-                {
-                    return null;
-                }
+              
 
             HistoryModel removeMsg = new HistoryModel();
 
             removeMsg.state = "Update";
 
-            foreach (var item in product)
-            {
-                var result = await fdb.Collection(collectionName).Document(oid).UpdateAsync("content", FieldValue.ArrayRemove(product));
+            double val = await verifyItem(oid, product, removeMsg);        
 
-                removeMsg.message = "Removed item " + item.componentName + ", code " + item.componentId + " from order.\n";
-            }
+            var result = await fdb.Collection(collectionName).Document(oid).UpdateAsync("content", FieldValue.ArrayRemove(product));
+
+            await fdb.Collection(collectionName).Document(oid).UpdateAsync("value", FieldValue.Increment(-val));
 
             await addMessageToHistory(oid, uid, removeMsg);
 
-            return await getOrderDetails(oid, null);
+            return true;
         }
     }
 }

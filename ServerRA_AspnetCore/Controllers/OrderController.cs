@@ -10,12 +10,12 @@ namespace ServerRA_AspnetCore.Controllers
     [Authorize]
     public class OrderController : BaseControllerWithFunctionality
     {
-        private readonly OrderService orsrv;
+        private readonly OrderService ordSrv;
         private readonly UserService usrSrv;
 
         public OrderController()
         {
-            orsrv = OrderService.getInstace();
+            ordSrv = OrderService.getInstance();
             usrSrv = UserService.getInstance();
         }
 
@@ -25,13 +25,19 @@ namespace ServerRA_AspnetCore.Controllers
         }
 
         [Route("[controller]/get/{orderid}")]
+        [Route("staff/[controller]/get/{orderid}")]
         [HttpGet("{orderid}")]
         public async Task<IActionResult> GetOrder(string orderid)
         {
             var uid = await UserService.getUserIDByToken(getAuthToken());
             try
             {
-                var result = await orsrv.getOrderDetails(orderid, uid);
+                OrderModel? result;
+                if (await usrSrv.IsUserStaff(uid) || await usrSrv.IsUserManager(uid))
+                    result = await ordSrv.getOrderDetails(orderid, null);
+                else
+                    result = await ordSrv.getOrderDetails(orderid, uid);
+
                 if (result == null)
                     return BadRequest(result);
                 else
@@ -52,7 +58,7 @@ namespace ServerRA_AspnetCore.Controllers
         public async Task<IActionResult> GetOrder()
         {
             var uid = await UserService.getUserIDByToken(getAuthToken());
-            var result = await orsrv.getOrdersForUser(uid);
+            var result = await ordSrv.getOrdersForUser(uid);
             if (result == null)
                 return Ok("[]");
             else
@@ -68,7 +74,7 @@ namespace ServerRA_AspnetCore.Controllers
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
-            var result = await orsrv.getUnfinishedOrders();
+            var result = await ordSrv.getUnfinishedOrders();
             if (result == null)
                 return Ok("[]");
             else
@@ -86,7 +92,7 @@ namespace ServerRA_AspnetCore.Controllers
             }
             if (state == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "state field cannot be empty");
-            var result = await orsrv.changeState(orderid, state);
+            var result = await ordSrv.changeState(orderid, state);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
@@ -103,7 +109,7 @@ namespace ServerRA_AspnetCore.Controllers
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
             try { 
-                var result = await orsrv.changeStateWithPrecondition(orderid, OrderService.state_dispaced, OrderService.state_process);
+                var result = await ordSrv.changeStateWithPrecondition(orderid, OrderService.state_dispaced, OrderService.state_process);
                 if (result == null)
                     return StatusCode(StatusCodes.Status500InternalServerError);
                 else
@@ -111,7 +117,7 @@ namespace ServerRA_AspnetCore.Controllers
                     HistoryModel message = new HistoryModel();
                     message.message = "Order with id " + orderid + " is not in process to be delivered";
                     message.state = OrderService.state_dispaced;
-                    await orsrv.addMessageToHistory(orderid, uid, message);
+                    await ordSrv.addMessageToHistory(orderid, uid, message);
                     return Ok(result);
                 }
             }
@@ -132,7 +138,7 @@ namespace ServerRA_AspnetCore.Controllers
             }
             try
             {
-                var result = await orsrv.changeStateWithPrecondition(orderid, OrderService.state_delivered, OrderService.state_dispaced);
+                var result = await ordSrv.changeStateWithPrecondition(orderid, OrderService.state_delivered, OrderService.state_dispaced);
                 if (result == null)
                     return StatusCode(StatusCodes.Status500InternalServerError);
                 else
@@ -140,7 +146,7 @@ namespace ServerRA_AspnetCore.Controllers
                     HistoryModel message = new HistoryModel();
                     message.message = "Order with id " + orderid + " has been delivered";
                     message.state = OrderService.state_delivered;
-                    await orsrv.addMessageToHistory(orderid, uid, message);
+                    await ordSrv.addMessageToHistory(orderid, uid, message);
                     return Ok(result);
                 }
             }
@@ -161,27 +167,31 @@ namespace ServerRA_AspnetCore.Controllers
             }
             if (newMessage == null || newMessage.message == null || newMessage.message.Equals(""))
                 return StatusCode(StatusCodes.Status400BadRequest, "Message field cannot be empty");
-            var result = await orsrv.addMessageToHistory(orderid, uid, newMessage);
+            var result = await ordSrv.addMessageToHistory(orderid, uid, newMessage);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
-                return Ok(result);
+                return Ok(ordSrv.getOrderDetails(orderid, null));
         }
 
         [Route("staff/[controller]/remove/{orderid}")]
         [HttpPost("{orderid}")]
-        public async Task<IActionResult> RemoveItems(string orderid, [FromBody] OrderComponentModel[] products)
+        public async Task<IActionResult> RemoveItems(string orderid, bool tostorage = false, [FromBody] OrderComponentModel[]? products = null)
         {
+            if(products == null)
+            {
+                return BadRequest("No products were given");
+            }
             var uid = await UserService.getUserIDByToken(getAuthToken());
             if (await isNotAutorized(uid))
             {
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
-            var result = await orsrv.removeProduct(orderid, uid, products);
+            var result = await ordSrv.removeProduct(orderid, uid, products, tostorage);
             if (result == null)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
-                return Ok(result);
+                return Ok(ordSrv.getOrderDetails(orderid, null));
         }
     }
 }
