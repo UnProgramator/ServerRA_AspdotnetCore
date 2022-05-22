@@ -2,45 +2,49 @@
 using Microsoft.AspNetCore.Mvc;
 using ServerRA_AspnetCore.Model;
 using ServerRA_AspnetCore.Services;
-
+using ServerRA_AspnetCore.Services.Client;
+using ServerRA_AspnetCore.Services.Client.Orders;
 using System.Text.Json;
 
 namespace ServerRA_AspnetCore.Controllers
 {
-    public class AssemblingController : Controller
+    public class AssemblingController : BaseControllerWithFunctionality
     {
-        //public async bool createAssembleOrder(string userID, components?, float basePrice)
-        //{
+        private readonly AssemblyService orsrv;
+        private readonly UserService usrSrv;
 
-        //}
-
-        [Route("[controller]/orders")]
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> getAssemblyOrdersByUserToken(string? token)
+        public AssemblingController()
         {
-            //var firebaseDB = FirebaseAccess.getFirebaseClient();
+            orsrv = AssemblyService.getInstace();
+            usrSrv = UserService.getInstance();
+        }
 
-            //string userId = UserService.getUserIdForToken(token);
+        protected async Task<bool> isNotAutorized(string uid)
+        {
+            return !await usrSrv.IsUserStaff(uid) && !await usrSrv.IsUserManager(uid);
+        }
 
-            //var order_list = await firebaseDB.GetAsync("userData/" + userId + "/Orders");
-
-            //if(order_list == null)
-            //    return NotFound();
-
-            //var decoded_order_list = order_list.ResultAs<string[]>();
-
-            //string response = "[";
-
-            //foreach (var code in decoded_order_list)
-            //{
-            //    var dbResponse = firebaseDB.Get("assemblyOrders/" + code).Body;
-            //    var rep = JsonSerializer.Deserialize<AssemblyFull>(dbResponse);
-            //}
-            //response = response.Substring(0, response.Length-1) + "]";
-
-            //return Ok(response);
-            return Ok();
+        [Route("[controller]/get/{orderid}")]
+        [HttpGet("{orderid}")]
+        public async Task<IActionResult> GetOrder(string orderid)
+        {
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+            try
+            {
+                var result = await orsrv.getOrderDetails(orderid, uid);
+                if (result == null)
+                    return BadRequest(result);
+                else
+                    return Ok(result);
+            }
+            catch (DataMisalignedException e)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+            }
+            catch (AccessViolationException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

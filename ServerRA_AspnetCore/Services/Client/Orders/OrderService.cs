@@ -15,7 +15,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
         public static OrderService getInstace()
         {
             if(_instance == null)
-                _instance = new OrderService();
+                _instance = new OrderService("orders");
             return _instance;
         }
 
@@ -24,19 +24,20 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
         public const string state_delivered = "Delivered";
 
 
-        private static DateTime getCrtTime() => DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
+        protected static DateTime getCrtTime() => DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
 
-        public const string collectionName = "orders";
+        protected string collectionName;
 
         private FirestoreDb fdb;
         private UserService usrSrv;
 
-        private OrderService() {
+        protected OrderService(string CollectionName) {
             fdb = FirebaseAccess.getFirestoreClient();
             usrSrv = UserService.getInstance();
+            collectionName = CollectionName;
         }
 
-        public async Task<string?> addNewOrder(string uid, BasketEntryModel[] componenets)
+        public virtual async Task<string?> addNewOrder(string uid, BasketEntryModel[] componenets)
         {
             int i = 0;
             float value = 0;
@@ -85,18 +86,26 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             string docId = response.Id;
 
-            HistoryModel hst = new HistoryModel();
-            hst.date = om.orderDate;
-            hst.sourceName = "Order Server";
-            hst.message = "Command with number " + docId + " created";
-            hst.state = "Created";
+            var initMsg = genInitialMessage(docId);
 
-            var response2 = await insertMessageToHystory(docId, hst);
+            initMsg.date = om.orderDate;
+
+            insertMessageToHystory(docId, initMsg);
 
             return docId;
         }
 
-        public async Task<OrderResumeModel[]?> getOrdersForUser(string uid)
+        protected virtual HistoryModel genInitialMessage(string orderId)
+        {
+            HistoryModel hst = new HistoryModel();
+            hst.sourceName = "Order Server";
+            hst.message = "Command with number " + orderId + " created";
+            hst.state = "Created";
+
+            return hst;
+        }
+
+        public virtual async Task<OrderResumeModel[]?> getOrdersForUser(string uid)
         {
             OrderResumeModel[]? result = null;
 
@@ -124,7 +133,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return result;
         }
 
-        public async Task<OrderModel?> getOrderDetails(string oid, string? uid)
+        public virtual async Task<OrderModel?> getOrderDetails(string oid, string? uid)
         {
             OrderModel? result = null;
 
@@ -145,7 +154,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return result;
         }
 
-        public async Task<OrderResumeModel[]?> getUnfinishedOrders()
+        public virtual async Task<OrderResumeModel[]?> getUnfinishedOrders()
         {
             OrderResumeModel[]? result = null;
 
@@ -185,7 +194,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
                 throw new Exception("Requested chnage is invalid, cannot change state from " + oldState + " to " + newState);
         }
 
-        public async Task<OrderModel?> changeState(string oid, string newState)
+        public virtual async Task<OrderModel?> changeState(string oid, string newState)
         {
             var response = await fdb.Collection(collectionName).Document(oid).UpdateAsync("state", newState);
 
@@ -201,17 +210,17 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             message.sourceName = (await usrSrv.getUserData(uid))?.name;
             if (message.sourceName == null)
                 return null;
-            await insertMessageToHystory(oid, message);
+            insertMessageToHystory(oid, message);
 
             return await getOrderDetails(oid, null);
         }
 
-        private async Task<object> insertMessageToHystory(string oid, HistoryModel message)
+        protected WriteResult insertMessageToHystory(string oid, HistoryModel message)
         {
-            return await fdb.Collection(collectionName).Document(oid).UpdateAsync("history", FieldValue.ArrayUnion(message));
+            return fdb.Collection(collectionName).Document(oid).UpdateAsync("history", FieldValue.ArrayUnion(message)).Result;
         }
 
-        public async Task<bool> verifyItem(string oid, OrderComponentModel comp)
+        protected async Task<bool> verifyItem(string oid, OrderComponentModel comp)
         {
             var result = await fdb.Collection(collectionName).Document(oid).GetSnapshotAsync();
 
@@ -241,7 +250,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return false;
         }
 
-        public async Task<OrderModel?> removeProduct(string oid, string uid, OrderComponentModel[] product)
+        public virtual async Task<OrderModel?> removeProduct(string oid, string uid, OrderComponentModel[] product)
         {
             //verify price and update for every item
             foreach(var item in product)
@@ -250,17 +259,18 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
                     return null;
                 }
 
+            HistoryModel removeMsg = new HistoryModel();
+
+            removeMsg.state = "Update";
+
             foreach (var item in product)
             {
                 var result = await fdb.Collection(collectionName).Document(oid).UpdateAsync("content", FieldValue.ArrayRemove(product));
 
-                HistoryModel removeMsg = new HistoryModel();
-
-                removeMsg.state = "Update";
-                removeMsg.message = "Removed item " + item.componentName + ", code " + item.componentId + " from order.";
-
-                await addMessageToHistory(oid, uid, removeMsg);
+                removeMsg.message = "Removed item " + item.componentName + ", code " + item.componentId + " from order.\n";
             }
+
+            await addMessageToHistory(oid, uid, removeMsg);
 
             return await getOrderDetails(oid, null);
         }
