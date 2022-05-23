@@ -99,6 +99,7 @@ namespace ServerRA_AspnetCore.Controllers
         }
 
         [Route("[controller]/order")]
+        [HttpPost]
         public async Task<IActionResult> BasketToOrderAsync()
         {
             try
@@ -117,11 +118,22 @@ namespace ServerRA_AspnetCore.Controllers
         }
 
         [Route("[controller]/assemble")]
+        [HttpPost]
         public async Task<IActionResult> BasketToAssembleAsync()
         {
-            var uid = await UserService.getUserIDByToken(getAuthToken());
-            var result = await bskSrv.ToAssembly(uid);
-            return Ok(result);
+            try
+            {
+                var uid = await UserService.getUserIDByToken(getAuthToken());
+                var result = await bskSrv.ToAssembly(uid);
+                if (result != null)
+                    return Ok("The assembly order was succesfully added wiht the id \"" + result + "\"");
+                else
+                    return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

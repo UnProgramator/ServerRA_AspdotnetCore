@@ -73,12 +73,6 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             return result;
         }
 
-
-        public bool startProcessing(string orderid)
-        {
-            throw new NotImplementedException();
-        }
-
         internal async Task<bool> addProduct(string orderid, string uid, BasketEntryModel[] componenets)
         {
             var usdData = fdb.Collection(collectionName).Document(uid);
