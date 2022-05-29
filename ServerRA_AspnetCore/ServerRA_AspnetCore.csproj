@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -9,13 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EdjCase.JsonRpc.Client" Version="3.0.2" />
+    <PackageReference Include="EdjCase.JsonRpc.Router" Version="5.1.2" />
     <PackageReference Include="Firebase.Auth" Version="1.0.0" />
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.5.0" />
-    <PackageReference Include="Horizon.XmlRpc.AspNetCore" Version="2.5.0" />
-    <PackageReference Include="Horizon.XmlRpc.Client" Version="2.5.0" />
-    <PackageReference Include="Horizon.XmlRpc.Core" Version="2.5.0" />
-    <PackageReference Include="Horizon.XmlRpc.Server" Version="2.5.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.20.1" />
     <PackageReference Include="Microsoft.AspNet.Identity.Owin" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
@@ -26,9 +25,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Model\Assembly\" />
-  </ItemGroup>
+	    
 
 </Project>

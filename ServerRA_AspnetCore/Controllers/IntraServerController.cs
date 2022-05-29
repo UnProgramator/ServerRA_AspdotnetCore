@@ -1,43 +1,43 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ServerRA_AspnetCore.External.XMLRPC;
+using ServerRA_AspnetCore.Services.Client;
 
 namespace ServerRA_AspnetCore.Controllers
 {
     public class IntraServerController : Controller
     {
-        UserDataRpcServiceImp rpcSrv;
+        UserService rpcSrv;
 
         public IntraServerController()
         {
-            rpcSrv = new UserDataRpcServiceImp();
+            rpcSrv = UserService.getInstance();
         }
 
         [Route("[controller]/getPrivileges")]
         [HttpGet]
-        public string GetUserPrivileges(string token)
+        public async Task<string> GetUserPrivileges(string token)
         {
-            return rpcSrv.GetUserPrivileges(token);
+            return await rpcSrv.getCrtUserRole(token);
         }
 
         [Route("[controller]/getId")]
         [HttpGet]
-        public string GetUserID(string token)
+        public async Task<string> GetUserID(string token)
         {
-            return rpcSrv.GetUserID(token);
+            return await UserService.getUserIDByToken(token);
         }
 
         [Route("[controller]/isAdmin")]
         [HttpGet]
-        public bool IsUserAdmin(string token)
+        public async Task<bool> IsUserAdmin(string token)
         {
-            return rpcSrv.IsUserAdmin(token);
+            return await rpcSrv.IsUserAdmin(token);
         }
 
         [Route("[controller]/isManager")]
         [HttpGet]
-        public bool IsUserManager(string token)
+        public async Task<bool> IsUserManager(string token)
         {
-            return rpcSrv.IsUserManager(token);
+            return await rpcSrv.IsUserManager(token);
         }
     }
 }

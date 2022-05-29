@@ -1,7 +1,5 @@
-using Horizon.XmlRpc.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ServerRA_AspnetCore.Services;
-using ServerRA_AspnetCore.External.XMLRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +31,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         }
 );
 
-builder.Services.AddXmlRpc();
+builder.Services.AddJsonRpc();
 
 var app = builder.Build();
 
@@ -44,7 +42,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseJsonRpc();
 
 app.UseHttpsRedirection();
 
@@ -54,6 +52,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseXmlRpc(config => config.MapService<UserDataRpcServiceImp>("xml-rpc"));
 
 app.Run();

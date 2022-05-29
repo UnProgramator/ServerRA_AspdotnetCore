@@ -152,7 +152,7 @@ namespace ServerRA_AspnetCore.Controllers
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
             var result = await asmSrv.removeProduct(orderid, uid, products, tostorage);
-            if (result == null)
+            if (!result)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
                 return Ok(asmSrv.getOrderDetails(orderid, null));
@@ -172,7 +172,7 @@ namespace ServerRA_AspnetCore.Controllers
                 return Unauthorized("Need staff priviledges or higher to access this functionality");
             }
             var result = await asmSrv.addProduct(orderid, uid, products);
-            if (result == null)
+            if (!result)
                 return StatusCode(StatusCodes.Status500InternalServerError);
             else
                 return Ok(asmSrv.getOrderDetails(orderid, null));

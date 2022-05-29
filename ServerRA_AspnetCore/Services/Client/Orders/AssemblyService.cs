@@ -80,7 +80,7 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             if (!ServerCommunication.getInstance().areAllAvailable(componenets))
                 throw new Exception("insuficient parts available");
 
-            BasketExtendedEntryModel[] componentsExt = ServerCommunication.getInstance().getAvailability(componenets);
+            BasketExtendedEntryModel[]? componentsExt = ServerCommunication.getInstance().getAvailability(componenets);
 
             HistoryModel removeMsg = new HistoryModel();
 
