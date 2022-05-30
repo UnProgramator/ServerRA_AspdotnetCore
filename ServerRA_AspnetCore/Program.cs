@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ServerRA_AspnetCore.External.jsonRpc;
 using ServerRA_AspnetCore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,7 +32,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                         }
 );
 
-builder.Services.AddJsonRpc();
+//builder.Services.AddJsonRpc();
 
 var app = builder.Build();
 
@@ -42,7 +43,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseJsonRpc();
+
 
 app.UseHttpsRedirection();
 
@@ -52,5 +53,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+//app.UseJsonRpcWithBaseController<ServerComunicationController>();
 
 app.Run();
