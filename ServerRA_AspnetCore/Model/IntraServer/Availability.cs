@@ -2,7 +2,7 @@
 {
     public class Availability
     {
-        public string isAvailable { get; set; }
-        public string productId { get; set; }
+        public string isAvailable { get; set; } = "";
+        public string productId { get; set; } = "";
     }
 }

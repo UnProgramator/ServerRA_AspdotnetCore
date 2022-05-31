@@ -9,13 +9,14 @@ namespace ServerRA_AspnetCore.Services.Client
     public class BasketService
     {
         private static BasketService? _instance;
+        private static object _instanceLock = new object();
 
         public static BasketService getInstance()
         {
             if (_instance == null)
-            {
-                _instance = new BasketService();
-            }
+                lock(_instanceLock)
+                    if (_instance == null)
+                        _instance = new BasketService();
             return _instance;
         }
 
@@ -58,7 +59,7 @@ namespace ServerRA_AspnetCore.Services.Client
                 if (basket == null)
                     return Array.Empty<BasketExtendedEntryModel>(); //for reasons where Basket would become null or whaterver
 
-                var response = ServerCommunication.getInstance().getAvailability(basket);
+                var response = await ServerCommunication.getInstance().getAvailability(basket);
 
                 if (response != null)
                     return response;

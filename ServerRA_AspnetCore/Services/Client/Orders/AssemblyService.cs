@@ -10,11 +10,16 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
     public class AssemblyService : OrderService
     {
         private static AssemblyService? _instance;
+        private static object _instanceLock = new object();
 
-        public static AssemblyService getInstance()
+        public static new AssemblyService getInstance()
         {
-            if( _instance == null )
-                _instance = new AssemblyService();
+            if (_instance == null)
+                lock (_instanceLock)
+                {
+                    if (_instance == null)
+                        _instance = new AssemblyService();
+                }
             return _instance;
         }
 
@@ -77,10 +82,10 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
         {
             var usdData = fdb.Collection(collectionName).Document(uid);
 
-            if (!ServerCommunication.getInstance().areAllAvailable(componenets))
+            if (!await ServerCommunication.getInstance().areAllAvailable(componenets))
                 throw new Exception("insuficient parts available");
 
-            BasketExtendedEntryModel[]? componentsExt = ServerCommunication.getInstance().getAvailability(componenets);
+            BasketExtendedEntryModel[]? componentsExt = await ServerCommunication.getInstance().getAvailability(componenets);
 
             HistoryModel removeMsg = new HistoryModel();
 

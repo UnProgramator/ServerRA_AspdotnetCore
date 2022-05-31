@@ -5,6 +5,7 @@ using ServerRA_AspnetCore.Services.Client;
 
 namespace ServerRA_AspnetCore.External.jsonRpc
 {
+    [RpcRoute("server")]
     public class ServerComunicationController : RpcController
     {
         UserService usrSrv;
@@ -14,24 +15,29 @@ namespace ServerRA_AspnetCore.External.jsonRpc
             usrSrv = UserService.getInstance();
         }
 
-        public async Task<string> GetUserPrivileges(string token)
+        public async Task<string> getUserPrivileges(string token)
         {
-            return await usrSrv.getCrtUserRole(token);
+            return await usrSrv.getCrtUserRole(await getUserID(token));
         }
 
-        public async Task<string> GetUserID(string token)
+        public async Task<string> getUserID(string token)
         {
             return await UserService.getUserIDByToken(token);
         }
 
-        public async Task<bool> IsUserAdmin(string token)
+        public async Task<bool> isUserAdmin(string token)
         {
-            return await usrSrv.IsUserAdmin(token);
+            return await usrSrv.IsUserAdmin(await getUserID(token));
         }
 
-        public async Task<bool> IsUserManager(string token)
+        public async Task<bool> isUserManager(string token)
         {
-            return await usrSrv.IsUserManager(token);
+            return await usrSrv.IsUserManager(await getUserID(token));
+        }
+
+        public async Task<bool> isUserStaff(string token)
+        {
+            return await usrSrv.IsUserStaff(await getUserID(token));
         }
     }
 }

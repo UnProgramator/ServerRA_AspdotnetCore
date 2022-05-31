@@ -23,7 +23,7 @@ namespace ServerRA_AspnetCore.Enternal.TempHTTPReq
             return json;
         }
 
-        public bool areAllAvailable(BasketEntryModel[] items)
+        public async Task<bool> areAllAvailable(BasketEntryModel[] items)
         {
 
             string json_msg = ConvertToJsonString(items);
@@ -37,7 +37,7 @@ namespace ServerRA_AspnetCore.Enternal.TempHTTPReq
             var response = httpClient.Send(httpRequestMsg);
             if (response != null && response.IsSuccessStatusCode)
             {
-                var str = response.Content.ReadAsStringAsync().Result;
+                var str = await response.Content.ReadAsStringAsync();
                 return bool.Parse(str);
             }
 
@@ -53,7 +53,7 @@ namespace ServerRA_AspnetCore.Enternal.TempHTTPReq
             return result;
         }
 
-        public BasketExtendedEntryModel[]? getAvailability(BasketEntryModel[] items)
+        public Task<BasketExtendedEntryModel[]> getAvailability(BasketEntryModel[] items)
         {
             string json_msg = ConvertToJsonString(items);
 
@@ -66,10 +66,12 @@ namespace ServerRA_AspnetCore.Enternal.TempHTTPReq
             var response = httpClient.Send(httpRequestMsg);
             if (response != null && response.IsSuccessStatusCode)
             {
-                return convert(response.Content.ReadAsStream());
+                var cvt = convert(response.Content.ReadAsStream());
+                if(cvt != null)
+                    return Task.FromResult(cvt);
             }
 
-            return Array.Empty<BasketExtendedEntryModel>();
+            return Task.FromResult(Array.Empty<BasketExtendedEntryModel>());
         }
 
     }

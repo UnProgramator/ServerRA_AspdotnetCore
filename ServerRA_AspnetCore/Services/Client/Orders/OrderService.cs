@@ -12,10 +12,14 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
     {
         private static OrderService? _instance;
 
+        private static object _locker = new object();
+
         public static OrderService getInstance()
         {
             if(_instance == null)
-                _instance = new OrderService("orders");
+                lock(_locker)
+                    if (_instance == null)
+                        _instance = new OrderService("orders");
             return _instance;
         }
 
@@ -44,10 +48,10 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
             int i = 0;
             float value = 0;
 
-            if (!ServerCommunication.getInstance().areAllAvailable(componenets))
+            if (!await ServerCommunication.getInstance().areAllAvailable(componenets))
                 throw new Exception("insuficient parts available");
 
-            BasketExtendedEntryModel[] componentsExt = ServerCommunication.getInstance().getAvailability(componenets);
+            BasketExtendedEntryModel[] componentsExt = await ServerCommunication.getInstance().getAvailability(componenets);
 
             if (componentsExt == null)
                 return null;

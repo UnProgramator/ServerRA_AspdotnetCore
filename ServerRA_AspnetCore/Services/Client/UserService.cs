@@ -12,11 +12,14 @@ namespace ServerRA_AspnetCore.Services.Client
     public class UserService
     {
         private static UserService? _instance = null;
-
+        
+        private static object _instanceLock = new object();
         public static UserService getInstance()
         {
             if (_instance == null)
-                _instance = new UserService();
+                lock(_instanceLock)
+                    if (_instance == null)
+                        _instance = new UserService();
             return _instance;
         }
 

@@ -11,10 +11,12 @@
   <ItemGroup>
     <PackageReference Include="EdjCase.JsonRpc.Client" Version="3.0.2" />
     <PackageReference Include="EdjCase.JsonRpc.Router" Version="5.1.2" />
+    <PackageReference Include="EdjCase.JsonRpc.Router.WebSockets" Version="3.0.1" />
     <PackageReference Include="Firebase.Auth" Version="1.0.0" />
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.5.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.20.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.1" />
+    <PackageReference Include="Horizon.XmlRpc.AspNetCore" Version="2.5.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.Owin" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
