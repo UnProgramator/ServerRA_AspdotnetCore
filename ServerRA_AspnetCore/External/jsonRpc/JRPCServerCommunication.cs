@@ -64,5 +64,27 @@ namespace ServerRA_AspnetCore.External.jsonRpc
                 return Array.Empty<BasketExtendedEntryModel>();
             }
         }
+
+        public async Task<bool> returnProducts(BasketEntryModel[] items)
+        {
+            List<List<object>> lst = new List<List<object>>(items.Length);
+
+            foreach (var item in items)
+            {
+                lst.Add(new List<object> { item.productId, item.count });
+            }
+            try
+            {
+                RpcClient cli = new RpcClient(new Uri(url));
+                RpcRequest req = RpcRequest.WithParameterList("returnComponents", new[] { lst }, "id2");
+                RpcResponse<BasketExtendedEntryModel[]> resp = await cli.SendRequestAsync<BasketExtendedEntryModel[]>(req);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
     }
 }

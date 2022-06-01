@@ -278,6 +278,16 @@ namespace ServerRA_AspnetCore.Services.Client.Orders
 
             await addMessageToHistory(oid, uid, removeMsg);
 
+            BasketEntryModel[] entries = new BasketEntryModel[product.Length];
+
+            int i = 0;
+            foreach(var item in product)
+            {
+                entries[i++] = new BasketEntryModel { productId = item.componentId, count = item.quantity };
+            }
+
+            ServerCommunication.getInstance().returnProducts(entries);
+
             return true;
         }
     }

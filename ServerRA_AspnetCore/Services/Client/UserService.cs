@@ -69,8 +69,6 @@ namespace ServerRA_AspnetCore.Services.Client
             return response?.ConvertTo<UserInternalModel>();
         }
 
-
-
         public async Task<string> getUserMailByToken(string token)
         {
             var userData = await FirebaseAccess.getFirebaseAuthProvider().GetUserAsync(token);

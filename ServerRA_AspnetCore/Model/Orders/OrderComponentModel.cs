@@ -6,10 +6,10 @@ namespace ServerRA_AspnetCore.Model.Orders
     public class OrderComponentModel
     {
         [FirestoreProperty]
-        public string? componentId { get; set; }
+        public string componentId { get; set; } = "";
 
         [FirestoreProperty]
-        public string? componentName { get; set; }
+        public string componentName { get; set; } = "";
 
         [FirestoreProperty]
         public int quantity { get; set; }

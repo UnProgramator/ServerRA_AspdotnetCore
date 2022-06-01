@@ -26,5 +26,6 @@ namespace ServerRA_AspnetCore.Enternal
 
         Task<BasketExtendedEntryModel[]> getAvailability(BasketEntryModel[] items);
         Task<bool> areAllAvailable(BasketEntryModel[] items);
-    }
+
+        Task<bool> returnProducts(BasketEntryModel[] items);    }
 }

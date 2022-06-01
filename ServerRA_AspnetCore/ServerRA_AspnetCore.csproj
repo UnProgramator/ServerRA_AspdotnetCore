@@ -9,6 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Web.registry.hub.docker.com_user.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Web.registry.hub.docker.com_user.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Web.registry.hub.docker.com_user.config" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="EdjCase.JsonRpc.Client" Version="3.0.2" />
     <PackageReference Include="EdjCase.JsonRpc.Router" Version="5.1.2" />
     <PackageReference Include="EdjCase.JsonRpc.Router.WebSockets" Version="3.0.1" />
@@ -26,6 +38,10 @@
     <PackageReference Include="Microsoft.Owin.Security.Cookies" Version="4.2.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
 	    
 

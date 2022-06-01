@@ -74,5 +74,24 @@ namespace ServerRA_AspnetCore.Enternal.TempHTTPReq
             return Task.FromResult(Array.Empty<BasketExtendedEntryModel>());
         }
 
+        public async Task<bool> returnProducts(BasketEntryModel[] items)
+        {
+            string json_msg = ConvertToJsonString(items);
+
+            var httpRequestMsg = new HttpRequestMessage(HttpMethod.Get, "https://server-parts-ada.herokuapp.com/return_components");
+
+            httpRequestMsg.Content = new StringContent(json_msg, Encoding.UTF8, "application/json");
+
+            var httpClient = new HttpClient();
+
+            var response = httpClient.Send(httpRequestMsg);
+            if (response != null && response.IsSuccessStatusCode)
+            {
+                var str = await response.Content.ReadAsStringAsync();
+                return bool.Parse(str);
+            }
+
+            return false;
+        }
     }
 }
