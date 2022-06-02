@@ -38,6 +38,33 @@ namespace ServerRA_AspnetCore.Controllers
             }
         }
 
+        [Route("[controller]/[action]")]
+        [HttpPost]
+        public async Task<IActionResult> AddUser(UserSignupModel userData, string role)
+        {
+            var uid = await UserService.getUserIDByToken(getAuthToken());
+
+            if (!await usrSrv.IsUserAdmin(uid))
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, "User must be admin in order to add new users with role");
+            }
+
+            //create new user
+            await usrSrv.signupUser(userData, role);
+
+            //login the user
+            var authLink = await usrSrv.signinUser(userData);
+
+            if (authLink != null)
+            {
+                return Ok(authLink);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status406NotAcceptable);
+            }
+        }
+
         [Route("[controller]/login")]
         [HttpPost]
         [AllowAnonymous]

@@ -1,19 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Google.Cloud.Firestore;
+using System.ComponentModel.DataAnnotations;
 
 namespace ServerRA_AspnetCore.Model.User
 {
+    [FirestoreData]
     public class UserSignupModel : UserAuthenticationModel
     {
-        //[Required]
-        //[EmailAddress]
-        //public string email { get; set; } //inherit from auth
-
-        //[Required]
-        //public string password { get; set; } //inherit from auth
-
         [Required]
+        [FirestoreProperty]
         public string name { get; set; } = "";
 
+        [FirestoreProperty]
         public string defaultAddress { get; set; } = "";
 
         public UserInternalModel getUserPublicInfo()

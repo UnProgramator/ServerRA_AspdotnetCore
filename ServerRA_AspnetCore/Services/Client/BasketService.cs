@@ -77,6 +77,18 @@ namespace ServerRA_AspnetCore.Services.Client
         {
             var usdData = firestoreRef.Collection("userData").Document(uid);
 
+            var snapshoot = await usdData.GetSnapshotAsync();
+            BasketEntryModel[] basket = snapshoot.GetValue<BasketEntryModel[]>(_basketField);
+
+            foreach(var entr in basket){
+                if (entr.productId.Equals(Element.productId))
+                {
+                    entr.count += Element.count;
+                    await firestoreRef.Collection("userData").Document(uid).UpdateAsync(_basketField, basket);
+                    return await getBasketForCurrentUser(uid);
+                }
+            }
+
             await usdData.UpdateAsync(_basketField, FieldValue.ArrayUnion(Element));
             return await getBasketForCurrentUser(uid);
         }
